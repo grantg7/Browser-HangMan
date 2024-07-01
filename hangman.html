@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .word {
+            font-size: 1.5em;
+            letter-spacing: 5px;
+        }
+        .letter {
+            display: inline-block;
+            width: 30px;
+            border-bottom: 2px solid #000;
+        }
+        .guesses {
+            margin-top: 20px;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: red;
+        }
+        .stick-figure {
+            margin: 20px auto;
+            max-width: 90%;
+            height: auto;
+            position: relative;
+        }
+        .stick-figure svg {
+            width: 100%;
+            height: auto;
+        }
+        .reset-button {
+            display: none;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        @media (min-width: 600px) {
+            .stick-figure {
+                width: 600px;
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Hangman Game</h1>
+    <div id="wordInputContainer">
+        <input type="text" id="wordInput" placeholder="Enter a word" autocomplete="off">
+        <button id="submitWordBtn">Submit</button>
+    </div>
+    <div class="word" id="word"></div>
+    <div class="guesses" id="guesses"></div>
+    <div class="message" id="message"></div>
+    <input type="text" id="guessInput" maxlength="1" autocomplete="off">
+    <button id="makeGuessBtn">Guess</button>
+    <div class="stick-figure" id="stickFigure">
+        <svg viewBox="0 0 100 100">
+            <line x1="10" y1="90" x2="90" y2="90" stroke="black" stroke-width="2"/>
+            <line x1="20" y1="90" x2="20" y2="10" stroke="black" stroke-width="2"/>
+            <line x1="20" y1="10" x2="60" y2="10" stroke="black" stroke-width="2"/>
+            <line x1="60" y1="10" x2="60" y2="20" stroke="black" stroke-width="2"/>
+            <circle id="head" cx="60" cy="30" r="10" stroke="black" stroke-width="2" fill="none" style="display:none"/>
+            <line id="body" x1="60" y1="40" x2="60" y2="70" stroke="black" stroke-width="2" style="display:none"/>
+            <line id="leftArm" x1="60" y1="50" x2="50" y2="40" stroke="black" stroke-width="2" style="display:none"/>
+            <line id="rightArm" x1="60" y1="50" x2="70" y2="40" stroke="black" stroke-width="2" style="display:none"/>
+            <line id="leftLeg" x1="60" y1="70" x2="50" y2="80" stroke="black" stroke-width="2" style="display:none"/>
+            <line id="rightLeg" x1="60" y1="70" x2="70" y2="80" stroke="black" stroke-width="2" style="display:none"/>
+        </svg>
+    </div>
+    <button class="reset-button" id="resetButton">Reset Game</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let word = '';
+            let guessedWord = [];
+            let guessedLetters = [];
+            const maxWrongGuesses = 6;
+            let wrongGuesses = 0;
+
+            const stickFigureParts = [
+                'head', 'body', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'
+            ];
+
+            document.getElementById('submitWordBtn').addEventListener('click', submitWord);
+            document.getElementById('makeGuessBtn').addEventListener('click', makeGuess);
+            document.getElementById('resetButton').addEventListener('click', resetGame);
+
+            function submitWord() {
+                word = document.getElementById('wordInput').value.toUpperCase();
+                guessedWord = word.split('').map(char => (char === ' ' ? ' ' : '_'));
+                document.getElementById('wordInputContainer').style.display = 'none';
+                displayWord();
+            }
+
+            function displayWord() {
+                document.getElementById('word').innerHTML = guessedWord.map(char =>
+                    char === ' ' ? '&nbsp;' : char).join(' ');
+            }
+
+            function displayGuesses() {
+                document.getElementById('guesses').innerHTML = `Guessed Letters: ${guessedLetters.join(', ')}`;
+            }
+
+            function updateStickFigure() {
+                if (wrongGuesses > 0) {
+                    document.getElementById(stickFigureParts[wrongGuesses - 1]).style.display = 'block';
+                }
+            }
+
+            function makeGuess() {
+                const guessInput = document.getElementById('guessInput');
+                const guess = guessInput.value.toUpperCase();
+                guessInput.value = '';
+
+                if (guess && !guessedLetters.includes(guess)) {
+                    guessedLetters.push(guess);
+                    if (word.includes(guess)) {
+                        for (let i = 0; i < word.length; i++) {
+                            if (word[i] === guess) {
+                                guessedWord[i] = guess;
+                            }
+                        }
+                    } else {
+                        wrongGuesses++;
+                        updateStickFigure();
+                    }
+
+                    if (wrongGuesses >= maxWrongGuesses) {
+                        document.getElementById('message').innerHTML = 'Game Over! The word was ' + word;
+                        document.getElementById('guessInput').disabled = true;
+                        document.getElementById('resetButton').style.display = 'block';
+                    } else if (!guessedWord.includes('_')) {
+                        document.getElementById('message').innerHTML = 'Congratulations! You guessed the word!';
+                        document.getElementById('guessInput').disabled = true;
+                        document.getElementById('resetButton').style.display = 'block';
+                    }
+
+                    displayWord();
+                    displayGuesses();
+                }
+            }
+
+            function resetGame() {
+                word = '';
+                guessedWord = [];
+                guessedLetters = [];
+                wrongGuesses = 0;
+                document.getElementById('wordInputContainer').style.display = 'block';
+                document.getElementById('guessInput').disabled = false;
+                document.getElementById('message').innerHTML = '';
+                document.getElementById('resetButton').style.display = 'none';
+                document.getElementById('word').innerHTML = '';
+                document.getElementById('guesses').innerHTML = '';
+                stickFigureParts.forEach(part => {
+                    document.getElementById(part).style.display = 'none';
+                });
+            }
+
+            displayWord();
+            displayGuesses();
+        });
+    </script>
+</body>
+</html>

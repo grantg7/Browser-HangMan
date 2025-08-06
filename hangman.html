@@ -3,176 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hangman Game</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f0f0;
-            padding: 20px;
-        }
-        .word {
-            font-size: 1.5em;
-            letter-spacing: 5px;
-        }
-        .letter {
-            display: inline-block;
-            width: 30px;
-            border-bottom: 2px solid #000;
-        }
-        .guesses {
-            margin-top: 20px;
-        }
-        .message {
-            margin-top: 20px;
-            font-size: 1.2em;
-            color: red;
-        }
-        .stick-figure {
-            margin: 20px auto;
-            max-width: 90%;
-            height: auto;
-            position: relative;
-        }
-        .stick-figure svg {
-            width: 100%;
-            height: auto;
-        }
-        .reset-button {
-            display: none;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        @media (min-width: 600px) {
-            .stick-figure {
-                width: 600px;
-                height: 600px;
-            }
-        }
-    </style>
+    <title>Ultimate Hangman Game</title>
+    <link rel="stylesheet" href="hangman-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Hangman Game</h1>
-    <div id="wordInputContainer">
-        <input type="text" id="wordInput" placeholder="Enter a word" autocomplete="off">
-        <button id="submitWordBtn">Submit</button>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="game-title">
+                <i class="fas fa-skull"></i>
+                ULTIMATE HANGMAN
+                <i class="fas fa-skull"></i>
+            </h1>
+            <div class="score-board">
+                <div class="score-item">
+                    <span class="label">Lives:</span>
+                    <span id="livesCount" class="value">6</span>
+                </div>
+                <div class="score-item">
+                    <span class="label">Score:</span>
+                    <span id="score" class="value">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="gallows-container">
+                <div class="gallows">
+                    <svg viewBox="0 0 200 250">
+                        <!-- Gallows structure -->
+                        <line x1="20" y1="230" x2="150" y2="230" stroke="#8B4513" stroke-width="8" class="gallows-base"/>
+                        <line x1="50" y1="230" x2="50" y2="20" stroke="#8B4513" stroke-width="6" class="gallows-pole"/>
+                        <line x1="50" y1="20" x2="130" y2="20" stroke="#8B4513" stroke-width="4" class="gallows-top"/>
+                        <line x1="130" y1="20" x2="130" y2="50" stroke="#8B4513" stroke-width="3" class="gallows-noose"/>
+                        
+                        <!-- Hangman parts -->
+                        <circle id="head" cx="130" cy="65" r="15" stroke="#FF6B6B" stroke-width="3" fill="none" class="body-part"/>
+                        <line id="body" x1="130" y1="80" x2="130" y2="150" stroke="#FF6B6B" stroke-width="3" class="body-part"/>
+                        <line id="leftArm" x1="130" y1="100" x2="110" y2="120" stroke="#FF6B6B" stroke-width="3" class="body-part"/>
+                        <line id="rightArm" x1="130" y1="100" x2="150" y2="120" stroke="#FF6B6B" stroke-width="3" class="body-part"/>
+                        <line id="leftLeg" x1="130" y1="150" x2="110" y2="180" stroke="#FF6B6B" stroke-width="3" class="body-part"/>
+                        <line id="rightLeg" x1="130" y1="150" x2="150" y2="180" stroke="#FF6B6B" stroke-width="3" class="body-part"/>
+                        
+                        <!-- Face details -->
+                        <circle id="leftEye" cx="125" cy="60" r="2" fill="#FF6B6B" class="face-part"/>
+                        <circle id="rightEye" cx="135" cy="60" r="2" fill="#FF6B6B" class="face-part"/>
+                        <path id="mouth" d="M 125 70 Q 130 75 135 70" stroke="#FF6B6B" stroke-width="2" fill="none" class="face-part"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="word-section">
+                <div id="wordSetup" class="word-setup">
+                    <h2>Enter Your Secret Word</h2>
+                    <input type="text" id="wordInput" placeholder="Type a secret word..." autocomplete="off" maxlength="20">
+                    <button id="submitWordBtn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Start Game
+                    </button>
+                    <div class="quick-words">
+                        <h3>Or choose a random word:</h3>
+                        <button id="randomWordBtn" class="btn btn-secondary">
+                            <i class="fas fa-dice"></i> Random Word
+                        </button>
+                    </div>
+                </div>
+
+                <div id="gamePlay" class="game-play" style="display: none;">
+                    <div class="word-display" id="wordDisplay"></div>
+                    
+                    <div class="alphabet-grid" id="alphabetGrid"></div>
+                    
+                    <div class="guess-section">
+                        <input type="text" id="guessInput" maxlength="1" placeholder="Type a letter..." autocomplete="off">
+                        <button id="makeGuessBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Guess
+                        </button>
+                    </div>
+                    
+                    <div class="guessed-letters">
+                        <h3>Guessed Letters:</h3>
+                        <div id="guessedLetters" class="letters-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-area">
+            <div id="message" class="message"></div>
+        </div>
+
+        <div class="controls">
+            <button id="resetButton" class="btn btn-reset" style="display: none;">
+                <i class="fas fa-redo"></i> Play Again
+            </button>
+            <button id="hintButton" class="btn btn-hint" style="display: none;">
+                <i class="fas fa-lightbulb"></i> Hint (-10 points)
+            </button>
+        </div>
     </div>
-    <div class="word" id="word"></div>
-    <div class="guesses" id="guesses"></div>
-    <div class="message" id="message"></div>
-    <input type="text" id="guessInput" maxlength="1" autocomplete="off">
-    <button id="makeGuessBtn">Guess</button>
-    <div class="stick-figure" id="stickFigure">
-        <svg viewBox="0 0 100 100">
-            <line x1="10" y1="90" x2="90" y2="90" stroke="black" stroke-width="2"/>
-            <line x1="20" y1="90" x2="20" y2="10" stroke="black" stroke-width="2"/>
-            <line x1="20" y1="10" x2="60" y2="10" stroke="black" stroke-width="2"/>
-            <line x1="60" y1="10" x2="60" y2="20" stroke="black" stroke-width="2"/>
-            <circle id="head" cx="60" cy="30" r="10" stroke="black" stroke-width="2" fill="none" style="display:none"/>
-            <line id="body" x1="60" y1="40" x2="60" y2="70" stroke="black" stroke-width="2" style="display:none"/>
-            <line id="leftArm" x1="60" y1="50" x2="50" y2="40" stroke="black" stroke-width="2" style="display:none"/>
-            <line id="rightArm" x1="60" y1="50" x2="70" y2="40" stroke="black" stroke-width="2" style="display:none"/>
-            <line id="leftLeg" x1="60" y1="70" x2="50" y2="80" stroke="black" stroke-width="2" style="display:none"/>
-            <line id="rightLeg" x1="60" y1="70" x2="70" y2="80" stroke="black" stroke-width="2" style="display:none"/>
-        </svg>
+
+    <!-- Victory/Game Over Modal -->
+    <div id="gameModal" class="modal">
+        <div class="modal-content">
+            <div id="modalContent"></div>
+            <button id="playAgainBtn" class="btn btn-primary">
+                <i class="fas fa-play"></i> Play Again
+            </button>
+        </div>
     </div>
-    <button class="reset-button" id="resetButton">Reset Game</button>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let word = '';
-            let guessedWord = [];
-            let guessedLetters = [];
-            const maxWrongGuesses = 6;
-            let wrongGuesses = 0;
-
-            const stickFigureParts = [
-                'head', 'body', 'leftArm', 'rightArm', 'leftLeg', 'rightLeg'
-            ];
-
-            document.getElementById('submitWordBtn').addEventListener('click', submitWord);
-            document.getElementById('makeGuessBtn').addEventListener('click', makeGuess);
-            document.getElementById('resetButton').addEventListener('click', resetGame);
-
-            function submitWord() {
-                word = document.getElementById('wordInput').value.toUpperCase();
-                guessedWord = word.split('').map(char => (char === ' ' ? ' ' : '_'));
-                document.getElementById('wordInputContainer').style.display = 'none';
-                displayWord();
-            }
-
-            function displayWord() {
-                document.getElementById('word').innerHTML = guessedWord.map(char =>
-                    char === ' ' ? '&nbsp;' : char).join(' ');
-            }
-
-            function displayGuesses() {
-                document.getElementById('guesses').innerHTML = `Guessed Letters: ${guessedLetters.join(', ')}`;
-            }
-
-            function updateStickFigure() {
-                if (wrongGuesses > 0) {
-                    document.getElementById(stickFigureParts[wrongGuesses - 1]).style.display = 'block';
-                }
-            }
-
-            function makeGuess() {
-                const guessInput = document.getElementById('guessInput');
-                const guess = guessInput.value.toUpperCase();
-                guessInput.value = '';
-
-                if (guess && !guessedLetters.includes(guess)) {
-                    guessedLetters.push(guess);
-                    if (word.includes(guess)) {
-                        for (let i = 0; i < word.length; i++) {
-                            if (word[i] === guess) {
-                                guessedWord[i] = guess;
-                            }
-                        }
-                    } else {
-                        wrongGuesses++;
-                        updateStickFigure();
-                    }
-
-                    if (wrongGuesses >= maxWrongGuesses) {
-                        document.getElementById('message').innerHTML = 'Game Over! The word was ' + word;
-                        document.getElementById('guessInput').disabled = true;
-                        document.getElementById('resetButton').style.display = 'block';
-                    } else if (!guessedWord.includes('_')) {
-                        document.getElementById('message').innerHTML = 'Congratulations! You guessed the word!';
-                        document.getElementById('guessInput').disabled = true;
-                        document.getElementById('resetButton').style.display = 'block';
-                    }
-
-                    displayWord();
-                    displayGuesses();
-                }
-            }
-
-            function resetGame() {
-                word = '';
-                guessedWord = [];
-                guessedLetters = [];
-                wrongGuesses = 0;
-                document.getElementById('wordInputContainer').style.display = 'block';
-                document.getElementById('guessInput').disabled = false;
-                document.getElementById('message').innerHTML = '';
-                document.getElementById('resetButton').style.display = 'none';
-                document.getElementById('word').innerHTML = '';
-                document.getElementById('guesses').innerHTML = '';
-                stickFigureParts.forEach(part => {
-                    document.getElementById(part).style.display = 'none';
-                });
-            }
-
-            displayWord();
-            displayGuesses();
-        });
-    </script>
+    <script src="hangman-script.js"></script>
 </body>
 </html>
